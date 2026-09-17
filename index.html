@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>电气火灾隐患辅助研判</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-title">
+            <h1>电气火灾隐患辅助研判</h1>
+            <p>从 MySQL 数据库按时间范围查询设备电数据，结合规则指标生成风险研判结果。</p>
+        </div>
+        <div class="status" id="ollamaStatus">检查 Ollama...</div>
+    </header>
+
+    <main class="layout">
+        <section class="panel controls">
+            <div class="panel-title">
+                <h2>数据库查询</h2>
+                <span>先选时间范围，再按需输入设备关键词。</span>
+            </div>
+
+            <div class="query-grid">
+                <label>
+                    开始时间
+                    <input id="dbStartTime" type="datetime-local" />
+                </label>
+                <label>
+                    结束时间
+                    <input id="dbEndTime" type="datetime-local" />
+                </label>
+                <label class="query-full">
+                    设备关键词
+                    <input id="dbKeyword" placeholder="设备编号、名称、区域或地址，可留空" />
+                </label>
+                <label>
+                    Ollama 模型
+                    <select id="model" class="model-select" size="1">
+                        <option value="llama3.2:latest">llama3.2:latest</option>
+                    </select>
+                </label>
+            </div>
+
+            <button id="dbQueryBtn" class="primary" type="button">从数据库查询</button>
+            <p class="hint">系统默认调用 Ollama 生成研判建议；规则结果用于提取危险源、趋势和兜底说明。</p>
+        </section>
+
+        <section class="panel summary">
+            <div class="panel-title">
+                <h2>结果概览</h2>
+                <span>展示本次查询的设备数量和风险分布。</span>
+            </div>
+
+            <div class="metrics">
+                <div class="metric-card"><span id="deviceCount">-</span><small>设备数</small></div>
+                <div class="metric-card"><span id="matchedCount">-</span><small>匹配数据</small></div>
+                <div class="metric-card danger"><span id="highCount">-</span><small>高风险</small></div>
+                <div class="metric-card warn"><span id="midCount">-</span><small>中风险</small></div>
+                <div class="metric-card low"><span id="lowCount">-</span><small>低风险</small></div>
+                <div class="metric-card ok"><span id="normalCount">-</span><small>正常</small></div>
+            </div>
+
+            <div class="notice" id="notice">请选择时间范围后点击“从数据库查询”。</div>
+        </section>
+    </main>
+
+    <section class="table-shell">
+        <div class="table-toolbar">
+            <div>
+                <h2>设备明细</h2>
+                <p>点击任意设备行可查看详情弹窗、统计摘要和趋势图表。</p>
+            </div>
+            <div class="toolbar-actions">
+                <input id="filterInput" placeholder="筛选设备、区域或建议..." />
+                <a class="secondary" href="./last_report.csv" download>下载 CSV</a>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>等级</th>
+                        <th>设备编号</th>
+                        <th>设备名称</th>
+                        <th>区域</th>
+                        <th>相数</th>
+                        <th>样本</th>
+                        <th>最大剩余电流</th>
+                        <th>最高温度</th>
+                        <th>最大电流</th>
+                        <th>电压范围</th>
+                        <th>研判</th>
+                        <th>建议</th>
+                    </tr>
+                </thead>
+                <tbody id="resultBody">
+                    <tr>
+                        <td colspan="12" class="empty-cell">等待查询数据...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script src="./js/echarts.min.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>
